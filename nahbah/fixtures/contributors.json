@@ -1,0 +1,26 @@
+[
+  {
+    "model": "nahbah.contributor",
+    "pk": 1,
+    "fields": {
+      "name": "Alice Smith",
+      "email": "alice.smith@gmail.com"
+    }
+  },
+  {
+    "model": "nahbah.contributor",
+    "pk": 2,
+    "fields": {
+      "name": "Bob Johnson",
+      "email": "bob.johnson@gmail.com"
+    }
+  },
+  {
+    "model": "nahbah.contributor",
+    "pk": 3,
+    "fields": {
+      "name": "Charlie Brown",
+      "email": "charlie.brown@gmail.com"
+    }
+  }
+]

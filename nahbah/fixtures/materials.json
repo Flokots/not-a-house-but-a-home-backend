@@ -1,0 +1,34 @@
+[
+{
+  "model": "nahbah.material",
+  "pk": 1,
+  "fields": {
+    "name": "Metals",
+    "material_image": "materials/metals.png"
+  }
+},
+{
+  "model": "nahbah.material",
+  "pk": 2,
+  "fields": {
+    "name": "Wood",
+    "material_image": "materials/wood.png"
+  }
+},
+{
+  "model": "nahbah.material",
+  "pk": 3,
+  "fields": {
+    "name": "Plastics",
+    "material_image": "materials/plastics.jpg"
+  }
+},
+{
+  "model": "nahbah.material",
+  "pk": 6,
+  "fields": {
+    "name": "Textiles",
+    "material_image": "materials/textiles.jpeg"
+  }
+}
+]

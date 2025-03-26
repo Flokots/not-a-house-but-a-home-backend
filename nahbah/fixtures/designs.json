@@ -1,0 +1,30 @@
+[
+  {
+    "model": "nahbah.design",
+    "pk": 1,
+    "fields": {
+      "title": "Tin can roofs",
+      "material": 1,
+      "description": "Roof shingles made from beverage cans",
+      "design_file": "designs/tin_can_roof.png",
+      "preview_image": "designs/previews/tin_can_roof_preview.jpg",
+      "contributor": 1,
+      "submission_date": "2025-03-25T10:00:00Z",
+      "status": "approved"
+    }
+  },
+  {
+    "model": "nahbah.design",
+    "pk": 2,
+    "fields": {
+      "title": "Wooden Rain Screen Facade",
+      "material": 2,
+      "description": "Rain screen facade made from fruit crates",
+      "design_file": "designs/wooden_rain_screen_facade.png",
+      "preview_image": "designs/previews/wooden_rain_screen_preview.jpg",
+      "contributor": 2,
+      "submission_date": "2025-03-26T12:00:00Z",
+      "status": "pending"
+    }
+  }
+]
