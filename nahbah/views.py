@@ -1,9 +1,14 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Design, Material
-from .serializers import DesignSerializer, MaterialSerializer
+from .models import Contributor, Design, Material
+from .serializers import ContributorSerializer, DesignSerializer, MaterialSerializer
 from django.shortcuts import get_object_or_404
+
+
+class ContributorViewSet(viewsets.ModelViewSet):
+    queryset = Contributor.objects.all()
+    serializer_class = ContributorSerializer
 
 
 # Material ViewSet (List Materials)
@@ -23,7 +28,7 @@ class DesignViewSet(viewsets.ModelViewSet):
         """Admin can approve or reject a design, but only if it is pending."""
         design = get_object_or_404(Design, pk=pk)
 
-        # ✅ Prevent moderation of already approved/rejected designs
+        # Prevent moderation of already approved/rejected designs
         if design.status != "pending":
             return Response(
                 {"error": "This design has already been moderated."},

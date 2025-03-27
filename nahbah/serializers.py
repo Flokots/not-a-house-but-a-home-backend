@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Design, Material
+from .models import Contributor, Design, Material
+
+
+class ContributorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contributor
+        fields = ["name", "email"]
 
 
 class MaterialSerializer(serializers.ModelSerializer):
@@ -9,12 +15,24 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 
 class DesignSerializer(serializers.ModelSerializer):
-    material = MaterialSerializer(read_only=True)  # Nested material info
-    material_id = serializers.PrimaryKeyRelatedField(
-        queryset=Material.objects.all(), write_only=True
-    )  # Allow selecting a material via ID
+    material = serializers.PrimaryKeyRelatedField(queryset=Material.objects.all())  # Expect material ID
+    contributor = ContributorSerializer()  # Accept contributor details in the request
 
     class Meta:
         model = Design
-        fields = ["id", "title", "description", "material", "material_id", "design_file", "preview_image", "status",
-                  "submission_date", "contributor"]
+        fields = "__all__"
+
+    def create(self, validated_data):
+        # Extract contributor data
+        contributor_data = validated_data.pop("contributor", None)
+
+        # If contributor data is provided
+        if contributor_data:
+            email = contributor_data.get("email")
+
+            # Check if contributor exists
+            contributor, created = Contributor.objects.get_or_create(email=email, defaults=contributor_data)
+            validated_data["contributor"] = contributor  # Link the existing/new contributor
+
+            # Create Design instance
+        return Design.objects.create(**validated_data)
