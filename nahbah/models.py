@@ -4,6 +4,7 @@ from io import BytesIO
 
 from PIL import Image
 from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.db import models
 from django_resized import ResizedImageField
@@ -28,12 +29,19 @@ class Contributor(models.Model):
         return self.name if self.name else "Anonymous"
 
 
+def validate_file_size(file):
+    max_size_mb = 5
+    if file.size > max_size_mb * 1024 * 1024:
+        raise ValidationError(f"File size must not exceed {max_size_mb} MB.")
+
+
 # Design Submission Model
 class Design(models.Model):
     title = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     description = models.TextField(max_length=1500)
-    design_file = models.FileField(upload_to="designs/", blank=True, null=True, help_text="Upload a PDF or an image")
+    design_file = models.FileField(upload_to="designs/", blank=True, null=True, validators=[validate_file_size],
+                                   help_text="Upload a PDF or an image (max 5MB)")
     preview_image = models.ImageField(upload_to="previews/", blank=True, null=True)
     contributor = models.ForeignKey(Contributor, on_delete=models.SET_NULL, blank=True, null=True)
     submission_date = models.DateTimeField(auto_now_add=True)
@@ -42,6 +50,7 @@ class Design(models.Model):
         choices=[("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")],
         default="pending"
     )
+    rejection_reason = models.TextField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         is_new_file = self.pk is None or "design_file" in kwargs.get("update_fields", []) or not self.preview_image

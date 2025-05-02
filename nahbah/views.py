@@ -22,13 +22,11 @@ class DesignViewSet(viewsets.ModelViewSet):
     queryset = Design.objects.all()
     serializer_class = DesignSerializer
 
-    # Approve or Reject a Design
     @action(detail=True, methods=["PATCH"])
     def moderate(self, request, pk=None):
-        """Admin can approve or reject a design, but only if it is pending."""
+        """Admins can approve or reject a design, but only if it is pending."""
         design = get_object_or_404(Design, pk=pk)
 
-        # Prevent moderation of already approved/rejected designs
         if design.status != "pending":
             return Response(
                 {"error": "This design has already been moderated."},
@@ -39,17 +37,35 @@ class DesignViewSet(viewsets.ModelViewSet):
         if new_status not in ["approved", "rejected"]:
             return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Handle rejection reason
+        if new_status == "rejected":
+            rejection_reason = request.data.get("rejection_reason", "").strip()
+            if not rejection_reason:
+                return Response(
+                    {"error": "A rejection reason is required."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            design.rejection_reason = rejection_reason
+
         design.status = new_status
         design.save()
-        return Response({"message": f"Design {new_status} successfully!"})
 
-    #  Edit Design Before Approval
+        return Response(
+            {"message": f"Design {new_status} successfully!", "status": new_status}
+        )
+
     @action(detail=True, methods=["PATCH"])
     def edit(self, request, pk=None):
         """Admins can edit design details before approving."""
         design = get_object_or_404(Design, pk=pk)
-        serializer = DesignSerializer(design, data=request.data, partial=True)
 
+        if design.status != "pending":
+            return Response(
+                {"error": "Only pending designs can be edited."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = DesignSerializer(design, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
