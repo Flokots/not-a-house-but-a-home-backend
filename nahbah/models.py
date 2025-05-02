@@ -39,12 +39,20 @@ def validate_file_size(file):
         raise ValidationError(f"File size must not exceed {max_size_mb} MB.")
 
 
+def validate_file_type(file):
+    valid_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
+    ext = os.path.splitext(file.name)[1].lower()
+    if ext not in valid_extensions:
+        raise ValidationError("Unsupported file type. Only PDF or image files are allowed.")
+
+
 # Design Submission Model
 class Design(models.Model):
     title = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     description = models.TextField(max_length=1500)
-    design_file = models.FileField(upload_to="designs/", blank=True, null=True, validators=[validate_file_size],
+    design_file = models.FileField(upload_to="designs/", blank=True, null=True,
+                                   validators=[validate_file_size, validate_file_type],
                                    help_text="Upload a PDF or an image (max 5MB)")
     preview_image = models.ImageField(upload_to="previews/", blank=True, null=True)
     contributor = models.ForeignKey(Contributor, on_delete=models.SET_NULL, blank=True, null=True)
