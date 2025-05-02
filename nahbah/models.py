@@ -1,8 +1,12 @@
+import tempfile
+
+import fitz
 import os
 import re
 from io import BytesIO
 
 from PIL import Image
+from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
@@ -52,6 +56,30 @@ class Design(models.Model):
     )
     rejection_reason = models.TextField(blank=True, null=True)
 
+    def _sanitize_pdf(self, pdf_path):
+        """Re-saves PDF after removing potentially unsafe objects."""
+        try:
+            doc = fitz.open(pdf_path)
+            clean_path = pdf_path.replace(".pdf", "_clean.pdf")
+            doc.save(clean_path, garbage=4, deflate=True)
+            doc.close()
+
+            # Replace original file with sanitized one
+            with open(clean_path, "rb") as f:
+                self.design_file.save(os.path.basename(clean_path), File(f), save=False)
+        except Exception as e:
+            print(f"PDF sanitization failed: {e}")
+
+    def _sanitize_image(self, img_path):
+        try:
+            print(f"Sanitizing image: {img_path}")
+            with Image.open(img_path) as img:
+                # Remove EXIF by re-saving
+                rgb_image = img.convert("RGB")
+                rgb_image.save(img_path, format="JPEG", quality=90)
+        except Exception as e:
+            print(f"Image sanitization failed: {e}")
+
     def save(self, *args, **kwargs):
         is_new_file = self.pk is None or "design_file" in kwargs.get("update_fields", []) or not self.preview_image
 
@@ -64,8 +92,10 @@ class Design(models.Model):
             if default_storage.exists(file_path):  # Ensure file exists before processing
                 try:
                     if file_extension == ".pdf":
+                        self._sanitize_pdf(file_path)
                         self._generate_preview_from_pdf(file_path)
                     elif file_extension in [".jpg", ".jpeg", ".png"]:
+                        self._sanitize_image(file_path)
                         self._generate_preview_from_image(file_path)
                 except Exception as e:
                     print(f"Error processing file {self.design_file.name}: {e}")
@@ -73,14 +103,15 @@ class Design(models.Model):
     def _generate_preview_from_pdf(self, pdf_path):
         """Extract the first page of a PDF and save as preview image."""
         print(f"Generating preview for PDF: {pdf_path}")
-        images = convert_from_path(pdf_path, first_page=1, last_page=1)
-        if images:
-            img_io = BytesIO()
-            images[0].save(img_io, format="JPEG", quality=80)
-            img_content = ContentFile(img_io.getvalue(), name=f"preview_{self.pk}.jpg")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            images = convert_from_path(pdf_path, first_page=1, last_page=1)
+            if images:
+                img_io = BytesIO()
+                images[0].save(img_io, format="JPEG", quality=80)
+                img_content = ContentFile(img_io.getvalue(), name=f"preview_{self.pk}.jpg")
 
-            print(f"Saving preview image: {img_content.name}")
-            self.preview_image.save(img_content.name, img_content, save=True)
+                print(f"Saving preview image: {img_content.name}")
+                self.preview_image.save(img_content.name, img_content, save=True)
 
     def _generate_preview_from_image(self, img_path):
         """Resize uploaded image and save it as a preview with a meaningful name."""
