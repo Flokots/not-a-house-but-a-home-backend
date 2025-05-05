@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Contributor, Design, Material
 from .serializers import ContributorSerializer, DesignSerializer, MaterialSerializer
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from .generator import generate_full_booklet
 
 
 class ContributorViewSet(viewsets.ModelViewSet):

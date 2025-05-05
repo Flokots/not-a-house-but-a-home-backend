@@ -115,7 +115,7 @@ class Design(models.Model):
             images = convert_from_path(pdf_path, first_page=1, last_page=1)
             if images:
                 img_io = BytesIO()
-                images[0].save(img_io, format="JPEG", quality=80)
+                images[0].save(img_io, format="JPEG", quality=100)
                 img_content = ContentFile(img_io.getvalue(), name=f"preview_{self.pk}.jpg")
 
                 print(f"Saving preview image: {img_content.name}")
@@ -134,7 +134,7 @@ class Design(models.Model):
             preview_filename = f"{base_name}_{self.pk}.png"  # Ensure uniqueness
 
             preview_io = BytesIO()
-            img.save(preview_io, format="PNG", quality=80)  # Save as PNG
+            img.save(preview_io, format="PNG", quality=100)  # Save as PNG
             preview_content = ContentFile(preview_io.getvalue(), name=preview_filename)
 
             print(f"Saving preview image: {preview_filename}")
