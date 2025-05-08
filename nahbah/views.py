@@ -5,7 +5,8 @@ from .models import Contributor, Design, Material
 from .serializers import ContributorSerializer, DesignSerializer, MaterialSerializer
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from .generate_booklet import generate_full_booklet
+from nahbah.utils.generate_booklet import generate_booklet
+from urllib.parse import unquote
 
 
 class ContributorViewSet(viewsets.ModelViewSet):
@@ -73,3 +74,33 @@ class DesignViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["get"])
+    def download_booklet(self, request):
+        """
+        Download the full design booklet including intro pages and all approved designs.
+        Accepts a comma-separated list of design_ids in the query string.
+        Example: /api/designs/download_booklet/?design_ids=1,2,3
+        """
+        try:
+            design_ids_param = request.query_params.get("design_ids", "")
+            design_ids = [int(id.strip()) for id in design_ids_param.split(",") if id.strip().isdigit()]
+
+            if not design_ids:
+                return Response({"error": "No valid design IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+            booklet_stream = generate_booklet(design_ids)
+
+            response = FileResponse(
+                booklet_stream,
+                as_attachment=True,
+                filename="not_a_house_but_a_home.pdf",
+                content_type="application/pdf",
+            )
+            return response
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

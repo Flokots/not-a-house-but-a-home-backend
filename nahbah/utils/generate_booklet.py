@@ -16,7 +16,7 @@ A6 = landscape((148 * mm, 105 * mm))
 
 
 def generate_qr_code(url):
-    qr = qrcode.QRCODE(box_size=2, border=2)
+    qr = qrcode.QRCode(box_size=2, border=2)
     qr.add_data(url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
@@ -29,7 +29,7 @@ def generate_qr_code(url):
 def add_intro_pages(pdf_writer):
     intro_doc = fitz.open(INTRO_PDF_PATH)
     for page in intro_doc:
-        pdf_writer.insert_pdf(intro_doc, from_pagee=page.number, to_page=page.number)
+        pdf_writer.insert_pdf(intro_doc, from_page=page.number, to_page=page.number)
     intro_doc.close()
 
 
@@ -37,7 +37,7 @@ def add_design_entry(design, pdf_writer):
     # Page 1: Metadata
     meta_page = fitz.open()
     page = meta_page.new_page(width=A6[0], height=A6[1])
-    text = f"Title: {design.title} \n Material: {design.material.name}\n\n{design.description}"
+    text = f"Title: {design.title} \nMaterial: {design.material.name}\n\n{design.description}"
     contributor = design.contributor.name if design.contributor else "Anonymous"
     text += f"\n\nContributor: {contributor}"
 
@@ -77,14 +77,13 @@ def add_credits_page(pdf_writer):
     # Add doodle image
     if os.path.exists(CREDITS_IMAGE_PATH):
         doodle = fitz.Pixmap(CREDITS_IMAGE_PATH)
-        rect = fitz.Rect(300, 40, 420, 90)
+        rect = fitz.Rect(160.76, 0.75, 260.76, 78.35)
         page.insert_image(rect, pixmap=doodle, keep_proportion=True)
 
     # QR Code to Home
     qr_stream = generate_qr_code(BASE_URL)
     qr_img = fitz.Pixmap(qr_stream.read())
-    page.insert_image(fitz.Rect(30, 10, 80, 60), pixmap=qr_img, keep_proportion=True)
-    credits.insert_pdf(credits)
+    page.insert_image(fitz.Rect(350, 20, 420, 90), pixmap=qr_img, keep_proportion=True)
     pdf_writer.insert_pdf(credits)
     credits.close()
 
