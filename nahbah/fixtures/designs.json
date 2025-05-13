@@ -7,7 +7,7 @@
       "material": 1,
       "description": "Roof shingles made from beverage cans",
       "design_file": "designs/design1.jpg",
-      "preview_image": "designs/previews/design1_preview.jpg",
+      "preview_image": "previews/design1_preview.jpg",
       "contributor": 1,
       "submission_date": "2025-03-25T10:00:00Z",
       "status": "approved"
@@ -21,7 +21,7 @@
       "material": 3,
       "description": "Recycled plastic bottles compressed into bricks",
       "design_file": "designs/design2.jpg",
-      "preview_image": "designs/previews/design2_preview.jpg",
+      "preview_image": "previews/design2_preview.jpg",
       "contributor": 2,
       "submission_date": "2025-03-26T12:30:00Z",
       "status": "approved"
@@ -35,7 +35,7 @@
       "material": 2,
       "description": "Sustainable bamboo used in lightweight window frames",
       "design_file": "designs/design3.jpg",
-      "preview_image": "designs/previews/design3_preview.jpg",
+      "preview_image": "previews/design3_preview.jpg",
       "contributor": 3,
       "submission_date": "2025-03-27T09:15:00Z",
       "status": "approved"
@@ -49,7 +49,7 @@
       "material": 2,
       "description": "Repurposed wood from pallets used as flooring panels",
       "design_file": "designs/design4.jpg",
-      "preview_image": "designs/previews/design4_preview.jpg",
+      "preview_image": "previews/design4_preview.jpg",
       "contributor": 1,
       "submission_date": "2025-03-28T14:00:00Z",
       "status": "approved"
@@ -63,7 +63,7 @@
       "material": 3,
       "description": "Walls made from colored plastic bottles for insulation and lighting",
       "design_file": "designs/design5.jpg",
-      "preview_image": "designs/previews/design5_preview.jpg",
+      "preview_image": "previews/design5_preview.jpg",
       "contributor": 2,
       "submission_date": "2025-03-29T11:45:00Z",
       "status": "approved"
@@ -76,8 +76,8 @@
       "title": "Tire garden planters",
       "material": 3,
       "description": "Old tires repurposed as stackable garden planters",
-      "design_file": "designs/design_6.png",
-      "preview_image": "designs/previews/design6_preview.png",
+      "design_file": "designs/design_6.jpg",
+      "preview_image": "previews/design6_preview.jpg",
       "contributor": 3,
       "submission_date": "2025-03-30T08:00:00Z",
       "status": "approved"
@@ -90,8 +90,8 @@
       "title": "Cardboard ceiling tiles",
       "material": 5,
       "description": "Layered cardboard pressed into sound-dampening ceiling tiles",
-      "design_file": "designs/design7.png",
-      "preview_image": "designs/previews/design7_preview.jpg",
+      "design_file": "designs/design7.jpg",
+      "preview_image": "previews/design7_preview.jpg",
       "contributor": 1,
       "submission_date": "2025-03-31T10:20:00Z",
       "status": "approved"

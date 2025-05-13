@@ -15,8 +15,8 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 
 class DesignSerializer(serializers.ModelSerializer):
-    material = serializers.PrimaryKeyRelatedField(queryset=Material.objects.all())  # Expect material ID
-    contributor = ContributorSerializer()  # Accept contributor details in the request
+    material = MaterialSerializer(read_only=True)
+    contributor = ContributorSerializer()
 
     class Meta:
         model = Design
