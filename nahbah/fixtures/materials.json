@@ -4,7 +4,7 @@
   "pk": 1,
   "fields": {
     "name": "Metals",
-    "material_image": "materials/metals.png"
+    "material_image": "materials/metals.jpg"
   }
 },
 {
@@ -12,7 +12,7 @@
   "pk": 2,
   "fields": {
     "name": "Wood",
-    "material_image": "materials/wood.png"
+    "material_image": "materials/wood.jpg"
   }
 },
 {
@@ -25,10 +25,18 @@
 },
 {
   "model": "nahbah.material",
-  "pk": 6,
+  "pk": 4,
   "fields": {
     "name": "Textiles",
-    "material_image": "materials/textiles.jpeg"
+    "material_image": "materials/textiles.jpg"
+  }
+},
+  {
+  "model": "nahbah.material",
+  "pk": 5,
+  "fields": {
+    "name": "Paper",
+    "material_image": "materials/paper.jpg"
   }
 }
 ]
