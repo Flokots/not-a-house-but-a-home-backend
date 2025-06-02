@@ -6,7 +6,8 @@ from .serializers import ContributorSerializer, DesignSerializer, MaterialSerial
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from nahbah.utils.generate_booklet import generate_booklet
-from urllib.parse import unquote
+from django.shortcuts import redirect
+from django.conf import settings
 
 
 class ContributorViewSet(viewsets.ModelViewSet):
@@ -104,3 +105,8 @@ class DesignViewSet(viewsets.ModelViewSet):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+def view_site_redirect(request):
+    """Redirect to the appropriate frontend URL"""
+    return redirect(settings.FRONTEND_URL)
