@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+
+from config import settings
 from .models import Design, Contributor, Material
 import os
 
@@ -253,11 +255,8 @@ class MaterialAdmin(ImportExportModelAdmin):
 
 
 # Customize admin site
-admin.site.site_header = "Not A House But A Home - Admin"
-admin.site.site_title = "NAHBAH Admin"
-admin.site.index_title = "Welcome to NAHBAH Administration"
-
-# Add View Site link
-from django.conf import settings
+admin.site.site_header = "NOT A HOUSE BUT A HOME - Admin"
+admin.site.site_title = "NOT A HOUSE BUT A HOME - Admin"
+admin.site.index_title = "NOT A HOUSE BUT A HOME Administration"
 
 admin.site.site_url = settings.FRONTEND_URL
