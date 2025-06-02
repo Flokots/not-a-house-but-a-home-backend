@@ -17,6 +17,8 @@ DATABASES = {
 ALLOWED_HOSTS = [
     '.railway.app',  # Railway backend domain
     '.vercel.app',   # If you want to allow any Vercel domain (optional)
+    'localhost',     # For local testing with production settings
+    '127.0.0.1',     # For local testing with production settings
 ]
 
 # Production CORS - only your frontend
