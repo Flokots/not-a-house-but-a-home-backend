@@ -6,7 +6,11 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    # Use production settings if DATABASE_URL is present (Railway, Heroku, etc.)
+    if os.getenv('DATABASE_URL'):
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings_prod')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
