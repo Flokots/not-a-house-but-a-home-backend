@@ -12,9 +12,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 # Use production settings if DATABASE_URL is present (Railway, Heroku, etc.)
-if os.getenv('DATABASE_URL'):
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings_prod')
-else:
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 application = get_wsgi_application()

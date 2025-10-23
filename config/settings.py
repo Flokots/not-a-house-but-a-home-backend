@@ -239,6 +239,7 @@ if 'DYNO' in os.environ:
         'nahbah-backend-475da75619fb.herokuapp.com',
         '0.0.0.0',
         '.vercel.app', 
+        '.127.0.0.1'
     ]
     
     # CORS settings (update with your Vercel URL)
