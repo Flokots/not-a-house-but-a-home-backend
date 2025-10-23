@@ -192,3 +192,72 @@ if DEBUG:
     FRONTEND_URL = "http://localhost:5173"  # Development frontend
 else:
     FRONTEND_URL = "https://nahbah-frontend.vercel.app"  # Production frontend
+
+# Heroku Configuration
+if 'DYNO' in os.environ:
+    # Production settings for Heroku
+    DEBUG = False
+    
+    # Security
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # Session Security
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SECURE = True
+    
+    # Database
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+    
+    # Static files (WhiteNoise)
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    
+    # Allowed hosts (update with your Heroku app name)
+    ALLOWED_HOSTS = [
+        'nahbah-backend-475da75619fb.herokuapp.com',
+        'localhost',
+        '127.0.0.1',
+    ]
+    
+    # CORS settings (update with your Vercel URL)
+    CORS_ALLOWED_ORIGINS = [
+        'https://nahbah-frontend.vercel.app',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+    ]
+    
+    CORS_ALLOW_CREDENTIALS = True
+    
+    # Logging
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            },
+        },
+    }
