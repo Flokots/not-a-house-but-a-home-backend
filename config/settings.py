@@ -160,13 +160,24 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite local development
     "http://127.0.0.1:5173",
     "https://nahbah-frontend.vercel.app"
-    # Add your production frontend URL here
 ]
 
 # For development - remove in production
-CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
+# CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
+CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
