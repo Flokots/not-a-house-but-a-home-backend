@@ -237,6 +237,7 @@ if 'DYNO' in os.environ:
     # Allowed hosts (update with your Heroku app name)
     ALLOWED_HOSTS = [
         'nahbah-backend-475da75619fb.herokuapp.com',
+        '0.0.0.0',
         '.vercel.app', 
     ]
     
