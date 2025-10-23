@@ -163,8 +163,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # For development - remove in production
-# CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
-CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -249,6 +248,8 @@ if 'DYNO' in os.environ:
         'https://nahbah-frontend.vercel.app',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
+        'http://127.0.0.1:5173',
+        'http://localhost:5173',
     ]
     
     CORS_ALLOW_CREDENTIALS = True
