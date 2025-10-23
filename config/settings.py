@@ -30,9 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 'yes']
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.now.sh']
-
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
@@ -210,6 +208,7 @@ if 'DYNO' in os.environ:
     
     # Security
     SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -232,15 +231,13 @@ if 'DYNO' in os.environ:
     }
     
     # Static files (WhiteNoise)
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     
     # Allowed hosts (update with your Heroku app name)
     ALLOWED_HOSTS = [
         'nahbah-backend-475da75619fb.herokuapp.com',
-        'localhost',
-        '127.0.0.1',
+        '.vercel.app', 
     ]
     
     # CORS settings (update with your Vercel URL)
