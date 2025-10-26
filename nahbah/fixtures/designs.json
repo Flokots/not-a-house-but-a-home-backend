@@ -3,11 +3,11 @@
     "model": "nahbah.design",
     "pk": 1,
     "fields": {
-      "title": "Tin can roofs",
+      "title": "Roofing from Metal Cans",
       "material": 1,
-      "description": "Roof shingles made from beverage cans",
-      "design_file": "designs/design1.jpg",
-      "preview_image": "previews/design1_preview.jpg",
+      "description": "Roofing from metal cans. If you have a lot of beverage cans or tins and you get a pair of metal shears, you can make a great, durable roof. Wear safety gloves when working, because the metal is sharp and can cut your hands.First, cut the metal into equal pieces. Always start with a double row at the eaves and finish with the same at the ridge. The slope of the roof should not be less than 30% so that water can easily drain off it. A 30% slope means that after one meter, the roof rises at least 30 centimeters. It increases the safety of the roof if you place an extra layer of some kind of waterproof material under the metal pieces, as shown in the figure. An old PVC floor or bitumen sheet is suitable for this purpose.",
+      "design_file": "designs/roof_shingles.jpg",
+      "preview_image": "previews/roof_shingles_preview.jpg",
       "contributor": 1,
       "submission_date": "2025-03-25T10:00:00Z",
       "status": "approved"
@@ -17,12 +17,12 @@
     "model": "nahbah.design",
     "pk": 2,
     "fields": {
-      "title": "Plastic brick wall",
+      "title": "Thermal insulation with a foam mattress.",
       "material": 3,
-      "description": "Recycled plastic bottles compressed into bricks",
-      "design_file": "designs/design2.jpg",
-      "preview_image": "previews/design2_preview.jpg",
-      "contributor": 2,
+      "description": "You can get old foam from upholstery shops in almost unlimited quantities. If you cover your entire hut with it, it will be much warmer inside. The foam needs to be protected from the weather and rain on the outside. A well-overhanging eaves is very useful. Cover the outside of the foam with a water-repellent layer, such as the material used for camping tents. After a stormy day, you can find a lot of this around the beaches. Festival goers often don't take their tents home with them, so it's worth looking around there too. Upholsterers use a special nail with a wide head. If you can't get one, just use a regular nail that you hammer through a metal drink cap.",
+      "design_file": "designs/foam_mattress_thermal_insulation.jpeg",
+      "preview_image": "previews/foam_mattress_thermal_insulation_preview.jpeg",
+      "contributor": 1,
       "submission_date": "2025-03-26T12:30:00Z",
       "status": "approved"
     }
@@ -31,12 +31,12 @@
     "model": "nahbah.design",
     "pk": 3,
     "fields": {
-      "title": "Bamboo window frames",
-      "material": 2,
-      "description": "Sustainable bamboo used in lightweight window frames",
-      "design_file": "designs/design3.jpg",
-      "preview_image": "previews/design3_preview.jpg",
-      "contributor": 3,
+      "title": "Thermal insulation from packaging material.",
+      "material": 3,
+      "description": " In electronics stores, you can get Styrofoam used for packaging stoves, washing machines, and refrigerators. Grate this with a kitchen grater and fill it in the gaps between the sandwich walls. It is worth sealing it from the inside with a vapor barrier layer. This can be a stronger foil, old PVC flooring. It is also worth taping the gaps so that vapor does not get into the thermal insulation, because it can condense there and destroy the building structures. A wind barrier on the outside can be useful to prevent the wind from blowing through your hut. You can use a camping tent for this purpose, which is easy to find after festivals or on beaches. You can cover your house with wood on the outside and carpet on the inside.",
+      "design_file": "designs/thermal_insulation_from_packaging_material.png",
+      "preview_image": "previews/thermal_insulation_from_packaging_material_preview.png",
+      "contributor": 1,
       "submission_date": "2025-03-27T09:15:00Z",
       "status": "approved"
     }
@@ -45,55 +45,13 @@
     "model": "nahbah.design",
     "pk": 4,
     "fields": {
-      "title": "Pallet wood flooring",
+      "title": "Facade cladding made from fruit crates.",
       "material": 2,
-      "description": "Repurposed wood from pallets used as flooring panels",
-      "design_file": "designs/design4.jpg",
-      "preview_image": "previews/design4_preview.jpg",
+      "description": "In markets, fairgrounds and supermarkets, you can easily find valuable wooden crates in which vegetables and fruit were transported. Take them apart and use the flat elements to make a protective layer for your house. If you have a frame building, cover it from the outside with OSB boards or plywood, but you can also use old discarded solid door panels for this purpose. A layer of foil under the wooden shingles is very useful, which protects against strong winds and water squeezed behind the cladding by strong winds. You can make such a foil, for example, from camping tents. On the facade, the wooden shingles should always reach the two previous rows, as you can see in the picture, and the first and last rows should always be double layers.",
+      "design_file": "designs/rainscreen_facade.png",
+      "preview_image": "previews/rainscreen_facade_preview.png",
       "contributor": 1,
       "submission_date": "2025-03-28T14:00:00Z",
-      "status": "approved"
-    }
-  },
-  {
-    "model": "nahbah.design",
-    "pk": 5,
-    "fields": {
-      "title": "Plastic bottle wall",
-      "material": 3,
-      "description": "Walls made from colored plastic bottles for insulation and lighting",
-      "design_file": "designs/design5.jpg",
-      "preview_image": "previews/design5_preview.jpg",
-      "contributor": 2,
-      "submission_date": "2025-03-29T11:45:00Z",
-      "status": "approved"
-    }
-  },
-  {
-    "model": "nahbah.design",
-    "pk": 6,
-    "fields": {
-      "title": "Tire garden planters",
-      "material": 3,
-      "description": "Old tires repurposed as stackable garden planters",
-      "design_file": "designs/design_6.jpg",
-      "preview_image": "previews/design6_preview.jpg",
-      "contributor": 3,
-      "submission_date": "2025-03-30T08:00:00Z",
-      "status": "approved"
-    }
-  },
-  {
-    "model": "nahbah.design",
-    "pk": 7,
-    "fields": {
-      "title": "Cardboard ceiling tiles",
-      "material": 5,
-      "description": "Layered cardboard pressed into sound-dampening ceiling tiles",
-      "design_file": "designs/design7.jpg",
-      "preview_image": "previews/design7_preview.jpg",
-      "contributor": 1,
-      "submission_date": "2025-03-31T10:20:00Z",
       "status": "approved"
     }
   }
