@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Contributor, Design, Material
+from cloudinary.utils import cloudinary_url
 
 
 class ContributorSerializer(serializers.ModelSerializer):
@@ -9,9 +10,16 @@ class ContributorSerializer(serializers.ModelSerializer):
 
 
 class MaterialSerializer(serializers.ModelSerializer):
+    material_image_url = serializers.SerializerMethodField()  # Add this
+
     class Meta:
         model = Material
         fields = "__all__"
+
+    def get_material_image_url(self, obj):
+        if obj.material_image:
+            return cloudinary_url(obj.material_image.public_id)[0]  # Full URL
+        return None
 
 
 class CustomPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
