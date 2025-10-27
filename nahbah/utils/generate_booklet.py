@@ -11,14 +11,18 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage
 from django.core.files.base import ContentFile
 import tempfile
-from reportlab.lib.pagesizes import A6, landscape
+from reportlab.lib.pagesizes import A6, landscape, letter
 from reportlab.lib.units import mm
+from django.http import HttpResponse
+import logging
 
 # Use settings for BASE_URL
 BASE_URL = settings.BASE_URL
 INTRO_PDF_PATH = os.path.join(settings.STATIC_ROOT, "not_a_house_but_a_home_intro_pages.pdf")
 CREDITS_IMAGE_PATH = os.path.join(settings.STATIC_ROOT, "doodle.png")
 A6 = landscape((148 * mm, 105 * mm))
+
+logger = logging.getLogger(__name__)
 
 
 def generate_qr_code(url):
@@ -108,13 +112,16 @@ def add_credits_page(pdf_writer):
     credits.close()
 
 
-def generate_booklet(designs):
+def generate_booklet(designs):  # designs can be a list of IDs or a QuerySet
+    if isinstance(designs, list):
+        designs = Design.objects.filter(id__in=designs)  # Fetch Design objects if IDs are passed
+    
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
     styles = getSampleStyleSheet()
     story = []
 
-    for design in designs:
+    for design in designs:  # Now design is a Design instance
         # Title
         story.append(Paragraph(design.title, styles['Heading1']))
         story.append(Spacer(1, 12))
@@ -186,3 +193,18 @@ def create_pdf(design_ids):
     pdf_writer.close()
     output_stream.seek(0)
     return output_stream
+
+
+def download_booklet(request):
+    design_ids_str = request.GET.get('design_ids', '')
+    design_ids = [int(id.strip()) for id in design_ids_str.split(',') if id.strip()]
+    designs = Design.objects.filter(id__in=design_ids)
+    
+    try:
+        pdf_buffer = generate_booklet(designs)  # Pass the QuerySet, not IDs
+        response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="not_a_house_but_a_home.pdf"'
+        return response
+    except Exception as e:
+        logger.error(f"Error generating booklet: {e}")
+        return HttpResponse("Error generating booklet", status=500)
