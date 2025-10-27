@@ -8,6 +8,12 @@ from nahbah.models import Design
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.lib.pagesizes import landscape
+import requests
+from io import BytesIO
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage
+from django.core.files.base import ContentFile
+import tempfile
 
 BASE_URL = "http://127.0.0.1:8000"
 INTRO_PDF_PATH = os.path.join(settings.STATIC_ROOT, "not_a_house_but_a_home_intro_pages.pdf")
@@ -88,7 +94,71 @@ def add_credits_page(pdf_writer):
     credits.close()
 
 
-def generate_booklet(design_ids):
+def generate_booklet(designs):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    styles = getSampleStyleSheet()
+    story = []
+
+    for design in designs:
+        # Title
+        story.append(Paragraph(design.title, styles['Heading1']))
+        story.append(Spacer(1, 12))
+
+        # Description
+        story.append(Paragraph(design.description, styles['Normal']))
+        story.append(Spacer(1, 12))
+
+        # Preview Image (from Cloudinary)
+        if design.preview_image:
+            try:
+                response = requests.get(design.preview_image.url)
+                response.raise_for_status()
+                image_data = BytesIO(response.content)
+                
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+                    temp_file.write(image_data.getvalue())
+                    temp_path = temp_file.name
+                
+                img = RLImage(temp_path, width=400, height=300)
+                story.append(img)
+                story.append(Spacer(1, 12))
+                
+                os.unlink(temp_path)
+            except Exception as e:
+                story.append(Paragraph(f"Error loading preview image: {str(e)}", styles['Normal']))
+
+        # Design File (if it's an image, add it; if PDF, note it)
+        if design.design_file:
+            try:
+                file_url = design.design_file.url
+                if file_url.endswith('.pdf'):
+                    story.append(Paragraph(f"Design PDF: {file_url}", styles['Normal']))
+                else:
+                    # Assume it's an image
+                    response = requests.get(file_url)
+                    response.raise_for_status()
+                    image_data = BytesIO(response.content)
+                    
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+                        temp_file.write(image_data.getvalue())
+                        temp_path = temp_file.name
+                    
+                    img = RLImage(temp_path, width=400, height=300)
+                    story.append(img)
+                    
+                    os.unlink(temp_path)
+            except Exception as e:
+                story.append(Paragraph(f"Error loading design file: {str(e)}", styles['Normal']))
+        
+        story.append(Spacer(1, 24))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+
+def create_pdf(design_ids):
     pdf_writer = fitz.open()
     add_intro_pages(pdf_writer)
 
