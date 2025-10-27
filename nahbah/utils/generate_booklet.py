@@ -11,6 +11,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage
 from django.core.files.base import ContentFile
 import tempfile
+from reportlab.lib.pagesizes import A6, landscape
+from reportlab.lib.units import mm
 
 # Use settings for BASE_URL
 BASE_URL = settings.BASE_URL
