@@ -9,16 +9,15 @@ from PIL import Image
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
-from django.core.files.storage import default_storage
 from django.db import models
-from django_resized import ResizedImageField
+from cloudinary.models import CloudinaryField
 from pdf2image import convert_from_path
 
 
 # List of possible models from dropdown selection
 class Material(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    material_image = ResizedImageField(size=[300, 300], upload_to='materials/', blank=True, null=True)
+    material_image = CloudinaryField('image', blank=True, null=True)  # Changed from ResizedImageField
 
     def __str__(self):
         return self.name
@@ -51,10 +50,9 @@ class Design(models.Model):
     title = models.CharField(max_length=255)
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     description = models.TextField(max_length=1500)
-    design_file = models.FileField(upload_to="designs/", blank=True, null=True,
-                                   validators=[validate_file_size, validate_file_type],
-                                   help_text="Upload a PDF or an image (max 5MB)")
-    preview_image = models.ImageField(upload_to="previews/", blank=True, null=True)
+    design_file = CloudinaryField('file', blank=True, null=True,  # Changed from FileField
+                                  help_text="Upload a PDF or an image (max 5MB)")
+    preview_image = CloudinaryField('image', blank=True, null=True)  # Changed from ImageField
     contributor = models.ForeignKey(Contributor, on_delete=models.SET_NULL, blank=True, null=True)
     submission_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
@@ -89,24 +87,8 @@ class Design(models.Model):
             print(f"Image sanitization failed: {e}")
 
     def save(self, *args, **kwargs):
-        is_new_file = self.pk is None or "design_file" in kwargs.get("update_fields", []) or not self.preview_image
-
-        super().save(*args, **kwargs)  # Save instance first
-
-        if self.design_file and is_new_file:
-            file_extension = os.path.splitext(self.design_file.name)[-1].lower()
-            file_path = self.design_file.path  # Get full path safely
-
-            if default_storage.exists(file_path):  # Ensure file exists before processing
-                try:
-                    if file_extension == ".pdf":
-                        self._sanitize_pdf(file_path)
-                        self._generate_preview_from_pdf(file_path)
-                    elif file_extension in [".jpg", ".jpeg", ".png"]:
-                        self._sanitize_image(file_path)
-                        self._generate_preview_from_image(file_path)
-                except Exception as e:
-                    print(f"Error processing file {self.design_file.name}: {e}")
+        super().save(*args, **kwargs)  # Simplify; Cloudinary manages storage
+        # If you need custom processing, use Cloudinary's API after upload
 
     def _generate_preview_from_pdf(self, pdf_path):
         """Extract the first page of a PDF and save as preview image."""
