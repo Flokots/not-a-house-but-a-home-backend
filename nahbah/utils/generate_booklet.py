@@ -1,13 +1,10 @@
 import os
 import io
-import fitz # PyMuPDF
+import fitz  # PyMuPDF
 import qrcode
 from PIL import Image
 from django.conf import settings
 from nahbah.models import Design
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
-from reportlab.lib.pagesizes import landscape
 import requests
 from io import BytesIO
 from reportlab.lib.styles import getSampleStyleSheet
@@ -15,7 +12,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RL
 from django.core.files.base import ContentFile
 import tempfile
 
-BASE_URL = "http://127.0.0.1:8000"
+# Use settings for BASE_URL
+BASE_URL = settings.BASE_URL
 INTRO_PDF_PATH = os.path.join(settings.STATIC_ROOT, "not_a_house_but_a_home_intro_pages.pdf")
 CREDITS_IMAGE_PATH = os.path.join(settings.STATIC_ROOT, "doodle.png")
 A6 = landscape((148 * mm, 105 * mm))
@@ -54,20 +52,34 @@ def add_design_entry(design, pdf_writer):
     pdf_writer.insert_pdf(meta_page)
     meta_page.close()
 
-    # Pages 2+: Full Design File (PDF or Image)
-    if design.design_file.name.endswith(".pdf"):
-        design_doc = fitz.open(os.path.join(settings.MEDIA_ROOT, design.design_file.name))
-        pdf_writer.insert_pdf(design_doc)
-        design_doc.close()
-    else:
-        img_path = os.path.join(settings.MEDIA_ROOT, design.design_file.name)
-        img_doc = fitz.open()
-        img_page = img_doc.new_page(width=A6[0], height=A6[1])
-        img = fitz.Pixmap(img_path)
-        rect = fitz.Rect(10, 10, A6[0] - 10, A6[1] - 10)
-        img_page.insert_image(rect, pixmap=img, keep_proportion=True)
-        pdf_writer.insert_pdf(img_doc)
-        img_doc.close()
+    # Pages 2+: Full Design File (PDF or Image from Cloudinary)
+    if design.design_file:
+        file_url = design.design_file.url
+        try:
+            response = requests.get(file_url)
+            response.raise_for_status()
+            file_stream = BytesIO(response.content)
+            
+            if design.design_file.name.endswith(".pdf"):
+                design_doc = fitz.open(file_stream)
+                pdf_writer.insert_pdf(design_doc)
+                design_doc.close()
+            else:
+                # Assume it's an image
+                img_doc = fitz.open()
+                img_page = img_doc.new_page(width=A6[0], height=A6[1])
+                img = fitz.Pixmap(file_stream)
+                rect = fitz.Rect(10, 10, A6[0] - 10, A6[1] - 10)
+                img_page.insert_image(rect, pixmap=img, keep_proportion=True)
+                pdf_writer.insert_pdf(img_doc)
+                img_doc.close()
+        except Exception as e:
+            # Log error or add error page
+            error_page = fitz.open()
+            err_pg = error_page.new_page(width=A6[0], height=A6[1])
+            err_pg.insert_text((30, 50), f"Error loading design file: {str(e)}", fontsize=10)
+            pdf_writer.insert_pdf(error_page)
+            error_page.close()
 
 
 def add_credits_page(pdf_writer):
