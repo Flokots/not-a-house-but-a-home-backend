@@ -162,7 +162,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite local development
     "http://127.0.0.1:5173",
-    "https://nahbah-frontend.vercel.app"
+    "https://nahbah.vercel.app"
 ]
 
 # For development - remove in production
@@ -183,7 +183,7 @@ CORS_ALLOW_HEADERS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "https://nahbah-frontend.vercel.app",
+    "https://nahbah.vercel.app",
     # Add your production URLs here
 ]
 
@@ -204,7 +204,7 @@ ADMIN_INTERFACE = {
 if DEBUG:
     FRONTEND_URL = "http://localhost:5173"  # Development frontend
 else:
-    FRONTEND_URL = "https://nahbah-frontend.vercel.app"  # Production frontend
+    FRONTEND_URL = "https://nahbah.vercel.app"  # Production frontend
 
 # Heroku Configuration
 if 'DYNO' in os.environ:
@@ -249,7 +249,7 @@ if 'DYNO' in os.environ:
     
     # CORS settings (update with your Vercel URL)
     CORS_ALLOWED_ORIGINS = [
-        'https://nahbah-frontend.vercel.app',
+        'https://nahbah.vercel.app',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:5173',
