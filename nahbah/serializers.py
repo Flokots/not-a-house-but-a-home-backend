@@ -1,3 +1,4 @@
+import json
 from rest_framework import serializers
 from .models import Contributor, Design, Material
 from cloudinary.utils import cloudinary_url
@@ -33,7 +34,7 @@ class CustomPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
 
 class DesignSerializer(serializers.ModelSerializer):
-    contributor = ContributorSerializer()
+    contributor = serializers.JSONField(write_only=True)  # Accept JSON string
     material = MaterialSerializer(read_only=True)
     material_id = CustomPrimaryKeyRelatedField(  # Use custom field
         source='material',
@@ -51,17 +52,17 @@ class DesignSerializer(serializers.ModelSerializer):
         """
         Handle -1 as a custom material indicator.
         """
-        material_id = data.get('material_id')
+        material = data.get('material')  # Changed from 'material_id' to 'material'
         custom_material_name = data.get('custom_material_name')
 
-        if material_id == -1:
+        if material == -1:
             if not custom_material_name:
                 raise serializers.ValidationError(
                     {"custom_material_name": "Custom material name is required when selecting 'Other'."}
                 )
-            # Remove material_id since it's not a real PK
-            data.pop('material_id', None)
-        elif material_id is None and not custom_material_name:
+            # Remove material since it's not a real object
+            data.pop('material', None)  # Changed from 'material_id'
+        elif material is None and not custom_material_name:
             raise serializers.ValidationError(
                 "Either a valid material_id or custom_material_name must be provided."
             )
@@ -69,17 +70,24 @@ class DesignSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        # Extract custom material if present
+        # Handle custom material
         custom_material_name = validated_data.pop('custom_material_name', None)
         if custom_material_name:
             material, created = Material.objects.get_or_create(name=custom_material_name)
             validated_data['material'] = material
 
-        # Extract contributor data
+        # Parse contributor JSON string
         contributor_data = validated_data.pop("contributor", None)
         if contributor_data:
+            # If it's a string, parse it
+            if isinstance(contributor_data, str):
+                contributor_data = json.loads(contributor_data)
+            
             email = contributor_data.get("email")
-            contributor, created = Contributor.objects.get_or_create(email=email, defaults=contributor_data)
+            contributor, created = Contributor.objects.get_or_create(
+                email=email, 
+                defaults={"name": contributor_data.get("name")}
+            )
             validated_data["contributor"] = contributor
 
         return Design.objects.create(**validated_data)
