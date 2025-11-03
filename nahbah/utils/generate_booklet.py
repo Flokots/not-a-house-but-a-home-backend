@@ -2,27 +2,18 @@ import os
 import io
 import fitz  # PyMuPDF
 import qrcode
+import requests
+from io import BytesIO
 from PIL import Image
 from django.conf import settings
 from nahbah.models import Design
-import requests
-from io import BytesIO
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage
-from django.core.files.base import ContentFile
-import tempfile
-from reportlab.lib.pagesizes import A6, landscape, letter
 from reportlab.lib.units import mm
-from django.http import HttpResponse
-import logging
+from reportlab.lib.pagesizes import landscape
 
-# Use settings for BASE_URL
-BASE_URL = settings.BASE_URL
+BASE_URL = settings.BASE_URL  # Use settings instead of hardcoded
 INTRO_PDF_PATH = os.path.join(settings.STATIC_ROOT, "not_a_house_but_a_home_intro_pages.pdf")
 CREDITS_IMAGE_PATH = os.path.join(settings.STATIC_ROOT, "doodle.png")
 A6 = landscape((148 * mm, 105 * mm))
-
-logger = logging.getLogger(__name__)
 
 
 def generate_qr_code(url):
@@ -37,41 +28,59 @@ def generate_qr_code(url):
 
 
 def add_intro_pages(pdf_writer):
-    intro_doc = fitz.open(INTRO_PDF_PATH)
-    for page in intro_doc:
-        pdf_writer.insert_pdf(intro_doc, from_page=page.number, to_page=page.number)
-    intro_doc.close()
+    if os.path.exists(INTRO_PDF_PATH):
+        intro_doc = fitz.open(INTRO_PDF_PATH)
+        for page in intro_doc:
+            pdf_writer.insert_pdf(intro_doc, from_page=page.number, to_page=page.number)
+        intro_doc.close()
 
 
 def add_design_entry(design, pdf_writer):
-    # Page 1: Metadata
+    # Page 1: Metadata with wrapped text
     meta_page = fitz.open()
     page = meta_page.new_page(width=A6[0], height=A6[1])
-    text = f"Title: {design.title} \nMaterial: {design.material.name}\n\n{design.description}"
+    
+    # Title
+    title_rect = fitz.Rect(30, 30, A6[0] - 30, 60)
+    page.insert_textbox(title_rect, design.title, fontsize=14, fontname="hebo")
+    
+    # Material
+    material_rect = fitz.Rect(30, 65, A6[0] - 30, 85)
+    page.insert_textbox(material_rect, f"Material: {design.material.name}", fontsize=10, fontname="helv")
+    
+    # Description (with text wrapping, but no overflow continuation)
+    desc_rect = fitz.Rect(30, 90, A6[0] - 100, A6[1] - 50)
+    page.insert_textbox(desc_rect, design.description, fontsize=9, fontname="helv", align=fitz.TEXT_ALIGN_LEFT)
+    
+    # Contributor
     contributor = design.contributor.name if design.contributor else "Anonymous"
-    text += f"\n\nContributor: {contributor}"
-
-    page.insert_text((30, 50), text, fontsize=10)
+    contrib_rect = fitz.Rect(30, A6[1] - 45, A6[0] - 100, A6[1] - 30)
+    page.insert_textbox(contrib_rect, f"Contributor: {contributor}", fontsize=9, fontname="helv")
+    
+    # QR Code
     qr_stream = generate_qr_code(f"{BASE_URL}/designs/{design.id}")
     qr_img = fitz.Pixmap(qr_stream.read())
-    page.insert_image(fitz.Rect(350, 20, 420, 90), pixmap=qr_img, keep_proportion=True)
+    page.insert_image(fitz.Rect(A6[0] - 90, 20, A6[0] - 20, 90), pixmap=qr_img, keep_proportion=True)
+    
     pdf_writer.insert_pdf(meta_page)
     meta_page.close()
 
     # Pages 2+: Full Design File (PDF or Image from Cloudinary)
     if design.design_file:
-        file_url = design.design_file.url
         try:
+            file_url = design.design_file.url
             response = requests.get(file_url)
             response.raise_for_status()
             file_stream = BytesIO(response.content)
             
-            if design.design_file.name.endswith(".pdf"):
-                design_doc = fitz.open(file_stream)
+            # Check if it's a PDF by trying to open it
+            try:
+                design_doc = fitz.open(stream=file_stream, filetype="pdf")
                 pdf_writer.insert_pdf(design_doc)
                 design_doc.close()
-            else:
-                # Assume it's an image
+            except:
+                # Not a PDF, treat as image
+                file_stream.seek(0)
                 img_doc = fitz.open()
                 img_page = img_doc.new_page(width=A6[0], height=A6[1])
                 img = fitz.Pixmap(file_stream)
@@ -80,10 +89,12 @@ def add_design_entry(design, pdf_writer):
                 pdf_writer.insert_pdf(img_doc)
                 img_doc.close()
         except Exception as e:
-            # Log error or add error page
+            # Add error page if file loading fails
             error_page = fitz.open()
             err_pg = error_page.new_page(width=A6[0], height=A6[1])
-            err_pg.insert_text((30, 50), f"Error loading design file: {str(e)}", fontsize=10)
+            err_pg.insert_textbox(fitz.Rect(30, 50, A6[0] - 30, A6[1] - 50), 
+                                 f"Error loading design file: {str(e)}", 
+                                 fontsize=10, fontname="helv")
             pdf_writer.insert_pdf(error_page)
             error_page.close()
 
@@ -98,6 +109,7 @@ def add_credits_page(pdf_writer):
     )
 
     page.insert_text((30, 40), text, fontsize=10)
+    
     # Add doodle image
     if os.path.exists(CREDITS_IMAGE_PATH):
         doodle = fitz.Pixmap(CREDITS_IMAGE_PATH)
@@ -112,74 +124,7 @@ def add_credits_page(pdf_writer):
     credits.close()
 
 
-def generate_booklet(designs):  # designs can be a list of IDs or a QuerySet
-    if isinstance(designs, list):
-        designs = Design.objects.filter(id__in=designs)  # Fetch Design objects if IDs are passed
-    
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-    styles = getSampleStyleSheet()
-    story = []
-
-    for design in designs:  # Now design is a Design instance
-        # Title
-        story.append(Paragraph(design.title, styles['Heading1']))
-        story.append(Spacer(1, 12))
-
-        # Description
-        story.append(Paragraph(design.description, styles['Normal']))
-        story.append(Spacer(1, 12))
-
-        # Preview Image (from Cloudinary)
-        if design.preview_image:
-            try:
-                response = requests.get(design.preview_image.url)
-                response.raise_for_status()
-                image_data = BytesIO(response.content)
-                
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
-                    temp_file.write(image_data.getvalue())
-                    temp_path = temp_file.name
-                
-                img = RLImage(temp_path, width=400, height=300)
-                story.append(img)
-                story.append(Spacer(1, 12))
-                
-                os.unlink(temp_path)
-            except Exception as e:
-                story.append(Paragraph(f"Error loading preview image: {str(e)}", styles['Normal']))
-
-        # Design File (if it's an image, add it; if PDF, note it)
-        if design.design_file:
-            try:
-                file_url = design.design_file.url
-                if file_url.endswith('.pdf'):
-                    story.append(Paragraph(f"Design PDF: {file_url}", styles['Normal']))
-                else:
-                    # Assume it's an image
-                    response = requests.get(file_url)
-                    response.raise_for_status()
-                    image_data = BytesIO(response.content)
-                    
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
-                        temp_file.write(image_data.getvalue())
-                        temp_path = temp_file.name
-                    
-                    img = RLImage(temp_path, width=400, height=300)
-                    story.append(img)
-                    
-                    os.unlink(temp_path)
-            except Exception as e:
-                story.append(Paragraph(f"Error loading design file: {str(e)}", styles['Normal']))
-        
-        story.append(Spacer(1, 24))
-
-    doc.build(story)
-    buffer.seek(0)
-    return buffer
-
-
-def create_pdf(design_ids):
+def generate_booklet(design_ids):
     pdf_writer = fitz.open()
     add_intro_pages(pdf_writer)
 
@@ -193,18 +138,3 @@ def create_pdf(design_ids):
     pdf_writer.close()
     output_stream.seek(0)
     return output_stream
-
-
-def download_booklet(request):
-    design_ids_str = request.GET.get('design_ids', '')
-    design_ids = [int(id.strip()) for id in design_ids_str.split(',') if id.strip()]
-    designs = Design.objects.filter(id__in=design_ids)
-    
-    try:
-        pdf_buffer = generate_booklet(designs)  # Pass the QuerySet, not IDs
-        response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="not_a_house_but_a_home.pdf"'
-        return response
-    except Exception as e:
-        logger.error(f"Error generating booklet: {e}")
-        return HttpResponse("Error generating booklet", status=500)
