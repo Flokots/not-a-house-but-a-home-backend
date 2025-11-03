@@ -48,7 +48,7 @@ def add_design_entry(design, pdf_writer):
     material_rect = fitz.Rect(30, 65, A6[0] - 30, 85)
     page.insert_textbox(material_rect, f"Material: {design.material.name}", fontsize=10, fontname="helv")
     
-    # Description (with text wrapping, but no overflow continuation)
+    # Description
     desc_rect = fitz.Rect(30, 90, A6[0] - 100, A6[1] - 50)
     page.insert_textbox(desc_rect, design.description, fontsize=9, fontname="helv", align=fitz.TEXT_ALIGN_LEFT)
     
@@ -57,8 +57,9 @@ def add_design_entry(design, pdf_writer):
     contrib_rect = fitz.Rect(30, A6[1] - 45, A6[0] - 100, A6[1] - 30)
     page.insert_textbox(contrib_rect, f"Contributor: {contributor}", fontsize=9, fontname="helv")
     
-    # QR Code
-    qr_stream = generate_qr_code(f"{BASE_URL}/designs/{design.id}")
+    # QR Code - Updated to point to frontend
+    frontend_design_url = f"{BASE_URL}/plans?design={design.id}"  # Adjust route as needed
+    qr_stream = generate_qr_code(frontend_design_url)
     qr_img = fitz.Pixmap(qr_stream.read())
     page.insert_image(fitz.Rect(A6[0] - 90, 20, A6[0] - 20, 90), pixmap=qr_img, keep_proportion=True)
     
