@@ -124,14 +124,12 @@ class DesignAdmin(ImportExportModelAdmin):
 
     def image_thumbnail(self, obj):
         """Display small thumbnail of design preview image"""
-        if obj.preview_image and hasattr(obj.preview_image, 'url'):
-            try:
-                return format_html(
-                    '<img src="{}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />',
-                    obj.preview_image.url
-                )
-            except:
-                return "Image error"
+        preview_url = obj.get_preview_url()
+        if preview_url:
+            return format_html(
+                '<img src="{}" style="max-height: 50px; max-width: 100px;" />',
+                preview_url
+            )
         return "No preview"
 
     image_thumbnail.short_description = 'Thumbnail'

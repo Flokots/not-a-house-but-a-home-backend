@@ -43,11 +43,31 @@ class DesignSerializer(serializers.ModelSerializer):
         required=False
     )
     custom_material_name = serializers.CharField(write_only=True, required=False)
+    design_file = serializers.FileField(required=False, allow_null=True)
+    preview_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Design
-        fields = "__all__"
+        fields = ['id', 'title', 'description', 'design_file', 'preview_image', 'material', 'material_id', 'custom_material_name',
+                  'contributor', 'submission_date', 'status', 'rejection_reason']
 
+    def get_preview_image(self, obj):
+        """
+        Return preview image URL.
+        Priority:
+        1. If preview_image field has a manually uploaded file, return it
+        2. Otherwise, generate from design_file using Cloudinary transformations
+        """
+        # If admin uploaded a custom preview, use that
+        if obj.preview_image:
+            return str(obj.preview_image.url)
+        
+        # Otherwise, generate from design_file
+        if obj.design_file:
+            return obj.get_preview_url()
+        
+        return None
+    
     def validate(self, data):
         """
         Handle -1 as a custom material indicator.
