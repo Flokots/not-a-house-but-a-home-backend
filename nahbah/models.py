@@ -84,11 +84,5 @@ class Design(models.Model):
         """
         super().save(*args, **kwargs)
 
-        # if self.design_file and not self.preview_image:
-        #     preview_url = self.get_preview_url()
-        #     if preview_url:
-        #         self.preview_image = preview_url
-        #         super().save(update_fields=['preview_image'])
-
     def __str__(self):
         return self.title
